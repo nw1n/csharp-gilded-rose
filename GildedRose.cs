@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NUnit.Framework;
 
 namespace csharp
 {
@@ -34,6 +35,134 @@ namespace csharp
             get { return item.Quality; }
             set { item.Quality = value; }
         }
+
+        public override string ToString()
+        {
+            return Name + ", " + SellIn + ", " + Quality;
+        }
+
+        public bool IsBackstagePass()
+        {
+            return Name == "Backstage passes to a TAFKAL80ETC concert";
+        }
+
+        public bool IsAgedBrie()
+        {
+            return Name == "Aged Brie";
+        }
+
+        public bool IsSulfuras()
+        {
+            return Name == "Sulfuras, Hand of Ragnaros";
+        }
+
+        public bool IsQualityLessThan50()
+        {
+            return Quality < 50;
+        }
+
+        public bool IsQualityGreaterThan0()
+        {
+            return Quality > 0;
+        }
+
+        public void setQualityToZero()
+        {
+            Quality = 0;
+        }
+
+        public void IncreaseQuality()
+        {
+            Quality++;
+        }
+
+        public void DecreaseQuality()
+        {
+            Quality--;
+        }
+
+        public void DecreaseDaysUntilExpired()
+        {
+            SellIn--;
+        }
+
+        public bool IsPastExpiration()
+        {
+            return SellIn < 0;
+        }
+
+        public void UpdateQuality()
+        {
+            if (!IsAgedBrie() && !IsBackstagePass())
+            {
+                if (IsQualityGreaterThan0())
+                {
+                    if (!IsSulfuras())
+                    {
+                        DecreaseQuality();
+                    }
+                }
+            }
+            else
+            {
+                if (IsQualityLessThan50())
+                {
+                    IncreaseQuality();
+
+                    if (IsBackstagePass())
+                    {
+                        if (SellIn < 11)
+                        {
+                            if (IsQualityLessThan50())
+                            {
+                                IncreaseQuality();
+                            }
+                        }
+
+                        if (SellIn < 6)
+                        {
+                            if (IsQualityLessThan50())
+                            {
+                                IncreaseQuality();
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!IsSulfuras())
+            {
+                DecreaseDaysUntilExpired();
+            }
+
+            if (IsPastExpiration())
+            {
+                if (IsAgedBrie())
+                {
+                    if (IsQualityLessThan50())
+                    {
+                        IncreaseQuality();
+                    }
+                }
+                else
+                {
+                    if (!IsBackstagePass())
+                    {
+                        if (IsQualityGreaterThan0())
+                        {
+                            if (!IsSulfuras())
+                            {
+                                DecreaseQuality();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        setQualityToZero();
+                    }
+                }
+            }
+        }
     }
 
     public class GildedRose
@@ -51,86 +180,12 @@ namespace csharp
             }
         }
 
-        public static bool IsBackstagePass(InventoryItem item)
-        {
-            return item.Name == "Backstage passes to a TAFKAL80ETC concert";
-        }
-
         public void UpdateQuality()
         {
             for (var i = 0; i < Items.Count; i++)
             {
-                var inventoryItem = InventoryItems[i];
-
-                if (inventoryItem.Name != "Aged Brie" && !IsBackstagePass(inventoryItem))
-                {
-                    if (inventoryItem.Quality > 0)
-                    {
-                        if (inventoryItem.Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            inventoryItem.Quality = inventoryItem.Quality - 1;
-                        }
-                    }
-                }
-                else
-                {
-                    if (inventoryItem.Quality < 50)
-                    {
-                        inventoryItem.Quality = inventoryItem.Quality + 1;
-
-                        if (IsBackstagePass(inventoryItem))
-                        {
-                            if (inventoryItem.SellIn < 11)
-                            {
-                                if (inventoryItem.Quality < 50)
-                                {
-                                    inventoryItem.Quality = inventoryItem.Quality + 1;
-                                }
-                            }
-
-                            if (inventoryItem.SellIn < 6)
-                            {
-                                if (inventoryItem.Quality < 50)
-                                {
-                                    inventoryItem.Quality = inventoryItem.Quality + 1;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (inventoryItem.Name != "Sulfuras, Hand of Ragnaros")
-                {
-                    inventoryItem.SellIn = inventoryItem.SellIn - 1;
-                }
-
-                if (inventoryItem.SellIn < 0)
-                {
-                    if (inventoryItem.Name != "Aged Brie")
-                    {
-                        if (!IsBackstagePass(inventoryItem))
-                        {
-                            if (inventoryItem.Quality > 0)
-                            {
-                                if (inventoryItem.Name != "Sulfuras, Hand of Ragnaros")
-                                {
-                                    inventoryItem.Quality = inventoryItem.Quality - 1;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            inventoryItem.Quality = inventoryItem.Quality - inventoryItem.Quality;
-                        }
-                    }
-                    else
-                    {
-                        if (inventoryItem.Quality < 50)
-                        {
-                            inventoryItem.Quality = inventoryItem.Quality + 1;
-                        }
-                    }
-                }
+                var invItem = InventoryItems[i];
+                invItem.UpdateQuality();
             }
         }
     }
