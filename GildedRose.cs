@@ -91,12 +91,16 @@ namespace csharp
 
         public void DecreaseDaysUntilExpired()
         {
-            SellIn--;
+            if (IsSulfuras())
+            {
+                return;
+            }
+            DaysUntilExpired--;
         }
 
         public bool IsPastExpiration()
         {
-            return SellIn < 0;
+            return DaysUntilExpired < 0;
         }
 
         public bool IsBasicItem()
@@ -111,26 +115,42 @@ namespace csharp
                 return;
             }
 
-            if (IsBasicItem())
-            {
-                DecreaseQuality();
-            }
-
             if (IsAgedBrie())
             {
                 IncreaseQuality();
+
+                if (IsPastExpiration())
+                {
+                    IncreaseQuality();
+                }
+            }
+
+            if (IsBasicItem())
+            {
+                DecreaseQuality();
+
+                if (IsPastExpiration())
+                {
+                    DecreaseQuality();
+                }
             }
 
             if (IsBackstagePass())
             {
+                if (IsPastExpiration())
+                {
+                    setQualityToZero();
+                    return;
+                }
+
                 IncreaseQuality();
 
-                if (SellIn < 11)
+                if (DaysUntilExpired < 10)
                 {
                     IncreaseQuality();
                 }
 
-                if (SellIn < 6)
+                if (DaysUntilExpired < 5)
                 {
                     IncreaseQuality();
                 }
@@ -141,32 +161,8 @@ namespace csharp
 
         public void UpdateItem()
         {
-            if (IsSulfuras())
-            {
-                return;
-            }
-
-            updateOnlyQuality();
             DecreaseDaysUntilExpired();
-
-            if (IsPastExpiration())
-            {
-                if (IsAgedBrie())
-                {
-                    IncreaseQuality();
-                }
-                else
-                {
-                    if (!IsBackstagePass())
-                    {
-                        DecreaseQuality();
-                    }
-                    else
-                    {
-                        setQualityToZero();
-                    }
-                }
-            }
+            updateOnlyQuality();
         }
     }
 
