@@ -2,15 +2,56 @@
 
 namespace csharp
 {
+    public class InventoryItem
+    {
+        private Item item;
+
+        public InventoryItem(Item item)
+        {
+            this.item = item;
+        }
+
+        public string Name
+        {
+            get { return item.Name; }
+            // set { item.Name = value; }
+        }
+
+        public int SellIn
+        {
+            get { return item.SellIn; }
+            set { item.SellIn = value; }
+        }
+
+        public int DaysUntilExpired
+        {
+            get { return item.SellIn; }
+            set { item.SellIn = value; }
+        }
+
+        public int Quality
+        {
+            get { return item.Quality; }
+            set { item.Quality = value; }
+        }
+    }
+
     public class GildedRose
     {
         IList<Item> Items;
+        IList<InventoryItem> InventoryItems = [];
         public GildedRose(IList<Item> Items)
         {
             this.Items = Items;
+
+            // initialize InventoryItems
+            foreach (var item in Items)
+            {
+                InventoryItems.Add(new InventoryItem(item));
+            }
         }
 
-        public static bool isBackstagePass(Item item)
+        public static bool IsBackstagePass(InventoryItem item)
         {
             return item.Name == "Backstage passes to a TAFKAL80ETC concert";
         }
@@ -19,72 +60,74 @@ namespace csharp
         {
             for (var i = 0; i < Items.Count; i++)
             {
-                if (Items[i].Name != "Aged Brie" && !isBackstagePass(Items[i]))
+                var inventoryItem = InventoryItems[i];
+
+                if (inventoryItem.Name != "Aged Brie" && !IsBackstagePass(inventoryItem))
                 {
-                    if (Items[i].Quality > 0)
+                    if (inventoryItem.Quality > 0)
                     {
-                        if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
+                        if (inventoryItem.Name != "Sulfuras, Hand of Ragnaros")
                         {
-                            Items[i].Quality = Items[i].Quality - 1;
+                            inventoryItem.Quality = inventoryItem.Quality - 1;
                         }
                     }
                 }
                 else
                 {
-                    if (Items[i].Quality < 50)
+                    if (inventoryItem.Quality < 50)
                     {
-                        Items[i].Quality = Items[i].Quality + 1;
+                        inventoryItem.Quality = inventoryItem.Quality + 1;
 
-                        if (isBackstagePass(Items[i]))
+                        if (IsBackstagePass(inventoryItem))
                         {
-                            if (Items[i].SellIn < 11)
+                            if (inventoryItem.SellIn < 11)
                             {
-                                if (Items[i].Quality < 50)
+                                if (inventoryItem.Quality < 50)
                                 {
-                                    Items[i].Quality = Items[i].Quality + 1;
+                                    inventoryItem.Quality = inventoryItem.Quality + 1;
                                 }
                             }
 
-                            if (Items[i].SellIn < 6)
+                            if (inventoryItem.SellIn < 6)
                             {
-                                if (Items[i].Quality < 50)
+                                if (inventoryItem.Quality < 50)
                                 {
-                                    Items[i].Quality = Items[i].Quality + 1;
+                                    inventoryItem.Quality = inventoryItem.Quality + 1;
                                 }
                             }
                         }
                     }
                 }
 
-                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
+                if (inventoryItem.Name != "Sulfuras, Hand of Ragnaros")
                 {
-                    Items[i].SellIn = Items[i].SellIn - 1;
+                    inventoryItem.SellIn = inventoryItem.SellIn - 1;
                 }
 
-                if (Items[i].SellIn < 0)
+                if (inventoryItem.SellIn < 0)
                 {
-                    if (Items[i].Name != "Aged Brie")
+                    if (inventoryItem.Name != "Aged Brie")
                     {
-                        if (!isBackstagePass(Items[i]))
+                        if (!IsBackstagePass(inventoryItem))
                         {
-                            if (Items[i].Quality > 0)
+                            if (inventoryItem.Quality > 0)
                             {
-                                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
+                                if (inventoryItem.Name != "Sulfuras, Hand of Ragnaros")
                                 {
-                                    Items[i].Quality = Items[i].Quality - 1;
+                                    inventoryItem.Quality = inventoryItem.Quality - 1;
                                 }
                             }
                         }
                         else
                         {
-                            Items[i].Quality = Items[i].Quality - Items[i].Quality;
+                            inventoryItem.Quality = inventoryItem.Quality - inventoryItem.Quality;
                         }
                     }
                     else
                     {
-                        if (Items[i].Quality < 50)
+                        if (inventoryItem.Quality < 50)
                         {
-                            Items[i].Quality = Items[i].Quality + 1;
+                            inventoryItem.Quality = inventoryItem.Quality + 1;
                         }
                     }
                 }
