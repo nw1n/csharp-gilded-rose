@@ -5,6 +5,23 @@ namespace csharp
 {
     public class Program
     {
+        public static List<Item> createItemsList() {
+            struct ItemData {
+                public string Name;
+                public int SellIn;
+                public int Quality;
+
+                public ItemData(string name, int sellIn, int quality) {
+                    Name = name;
+                    SellIn = sellIn;
+                    Quality = quality;
+                }
+            }
+
+            List<ItemData> itemsData = new List<ItemData> {
+                new ItemData {"+5 Dexterity Vest", 10, 20},
+            };
+        }
         public static void Main(string[] args)
         {
             Console.WriteLine("OMGHAI!");
