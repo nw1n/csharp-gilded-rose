@@ -15,7 +15,6 @@ namespace csharp
         public string Name
         {
             get { return item.Name; }
-            // set { item.Name = value; }
         }
 
         public int SellIn
@@ -56,16 +55,6 @@ namespace csharp
             return Name == "Sulfuras, Hand of Ragnaros";
         }
 
-        public bool IsQualityLessThan50()
-        {
-            return Quality < 50;
-        }
-
-        public bool IsQualityGreaterThan0()
-        {
-            return Quality > 0;
-        }
-
         public void setQualityToZero()
         {
             Quality = 0;
@@ -89,15 +78,6 @@ namespace csharp
             Quality--;
         }
 
-        public void DecreaseDaysUntilExpired()
-        {
-            if (IsSulfuras())
-            {
-                return;
-            }
-            DaysUntilExpired--;
-        }
-
         public bool IsPastExpiration()
         {
             return DaysUntilExpired < 0;
@@ -108,61 +88,112 @@ namespace csharp
             return !IsAgedBrie() && !IsBackstagePass() && !IsSulfuras();
         }
 
-        public void updateOnlyQuality()
+        public virtual void DecreaseDaysUntilExpired()
         {
-            if (IsSulfuras())
-            {
-                return;
-            }
-
-            if (IsAgedBrie())
-            {
-                IncreaseQuality();
-
-                if (IsPastExpiration())
-                {
-                    IncreaseQuality();
-                }
-            }
-
-            if (IsBasicItem())
-            {
-                DecreaseQuality();
-
-                if (IsPastExpiration())
-                {
-                    DecreaseQuality();
-                }
-            }
-
-            if (IsBackstagePass())
-            {
-                if (IsPastExpiration())
-                {
-                    setQualityToZero();
-                    return;
-                }
-
-                IncreaseQuality();
-
-                if (DaysUntilExpired < 10)
-                {
-                    IncreaseQuality();
-                }
-
-                if (DaysUntilExpired < 5)
-                {
-                    IncreaseQuality();
-                }
-            }
+            DaysUntilExpired--;
         }
 
+        public virtual void updateOnlyQuality()
+        {
+            DecreaseQuality();
 
+            if (IsPastExpiration())
+            {
+                DecreaseQuality();
+            }
+        }
 
         public void UpdateItem()
         {
             DecreaseDaysUntilExpired();
             updateOnlyQuality();
+        }
+    }
+
+    class Sulfuras : InventoryItem
+    {
+        public Sulfuras(Item item) : base(item)
+        {
+        }
+
+        public override void DecreaseDaysUntilExpired()
+        {
+            return;
+        }
+
+        public override void updateOnlyQuality()
+        {
+            return;
+        }
+    }
+
+    class AgedBrie : InventoryItem
+    {
+        public AgedBrie(Item item) : base(item)
+        {
+        }
+
+        public override void updateOnlyQuality()
+        {
+            IncreaseQuality();
+
+            if (IsPastExpiration())
+            {
+                IncreaseQuality();
+            }
+        }
+    }
+
+    class BackstagePass : InventoryItem
+    {
+        public BackstagePass(Item item) : base(item)
+        {
+        }
+
+        public override void updateOnlyQuality()
+        {
+            if (IsPastExpiration())
+            {
+                setQualityToZero();
+                return;
+            }
+
+            IncreaseQuality();
+
+            if (DaysUntilExpired < 10)
+            {
+                IncreaseQuality();
+            }
+
+            if (DaysUntilExpired < 5)
+            {
+                IncreaseQuality();
+            }
+        }
+    }
+
+    class InventoryItemFactory
+    {
+        public static InventoryItem Create(Item item)
+        {
+            InventoryItem invIt = new InventoryItem(item);
+
+            if (invIt.IsSulfuras())
+            {
+                return new Sulfuras(item);
+            }
+
+            if (invIt.IsAgedBrie())
+            {
+                return new AgedBrie(item);
+            }
+
+            if (invIt.IsBackstagePass())
+            {
+                return new BackstagePass(item);
+            }
+
+            return invIt;
         }
     }
 
@@ -177,7 +208,7 @@ namespace csharp
             // initialize InventoryItems
             foreach (var item in Items)
             {
-                InventoryItems.Add(new InventoryItem(item));
+                InventoryItems.Add(InventoryItemFactory.Create(item));
             }
         }
 
