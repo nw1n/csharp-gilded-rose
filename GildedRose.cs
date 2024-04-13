@@ -73,11 +73,19 @@ namespace csharp
 
         public void IncreaseQuality()
         {
+            if (Quality == 50)
+            {
+                return;
+            }
             Quality++;
         }
 
         public void DecreaseQuality()
         {
+            if (Quality == 0)
+            {
+                return;
+            }
             Quality--;
         }
 
@@ -91,70 +99,67 @@ namespace csharp
             return SellIn < 0;
         }
 
-        public void UpdateQuality()
+        public bool IsBasicItem()
         {
-            if (!IsAgedBrie() && !IsBackstagePass())
+            return !IsAgedBrie() && !IsBackstagePass() && !IsSulfuras();
+        }
+
+        public void updateOnlyQuality()
+        {
+            if (IsSulfuras())
             {
-                if (IsQualityGreaterThan0())
-                {
-                    if (!IsSulfuras())
-                    {
-                        DecreaseQuality();
-                    }
-                }
+                return;
             }
-            else
+
+            if (IsBasicItem())
             {
-                if (IsQualityLessThan50())
+                DecreaseQuality();
+            }
+
+            if (IsAgedBrie())
+            {
+                IncreaseQuality();
+            }
+
+            if (IsBackstagePass())
+            {
+                IncreaseQuality();
+
+                if (SellIn < 11)
                 {
                     IncreaseQuality();
+                }
 
-                    if (IsBackstagePass())
-                    {
-                        if (SellIn < 11)
-                        {
-                            if (IsQualityLessThan50())
-                            {
-                                IncreaseQuality();
-                            }
-                        }
-
-                        if (SellIn < 6)
-                        {
-                            if (IsQualityLessThan50())
-                            {
-                                IncreaseQuality();
-                            }
-                        }
-                    }
+                if (SellIn < 6)
+                {
+                    IncreaseQuality();
                 }
             }
+        }
 
-            if (!IsSulfuras())
+
+
+        public void UpdateItem()
+        {
+            if (IsSulfuras())
             {
-                DecreaseDaysUntilExpired();
+                return;
             }
+
+            updateOnlyQuality();
+            DecreaseDaysUntilExpired();
 
             if (IsPastExpiration())
             {
                 if (IsAgedBrie())
                 {
-                    if (IsQualityLessThan50())
-                    {
-                        IncreaseQuality();
-                    }
+                    IncreaseQuality();
                 }
                 else
                 {
                     if (!IsBackstagePass())
                     {
-                        if (IsQualityGreaterThan0())
-                        {
-                            if (!IsSulfuras())
-                            {
-                                DecreaseQuality();
-                            }
-                        }
+                        DecreaseQuality();
                     }
                     else
                     {
@@ -180,12 +185,12 @@ namespace csharp
             }
         }
 
-        public void UpdateQuality()
+        public void UpdateItems()
         {
             for (var i = 0; i < Items.Count; i++)
             {
                 var invItem = InventoryItems[i];
-                invItem.UpdateQuality();
+                invItem.UpdateItem();
             }
         }
     }
