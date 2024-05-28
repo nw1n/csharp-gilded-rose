@@ -1,5 +1,9 @@
 # Gilded Rose Kata C Sharp
 
+This is just a personal exercise project for taking a first look at the C# programming language. This exercise is the C# variant of the Gilded Rose Kata.
+
+## How to use
+
 For test
 
 `dotnet test --nologo`
